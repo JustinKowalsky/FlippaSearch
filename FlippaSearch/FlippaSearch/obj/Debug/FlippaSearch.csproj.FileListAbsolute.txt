@@ -6,7 +6,6 @@ Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\Flippa
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\bin\Debug\WebDriver.xml
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\bin\Debug\WebDriver.Support.xml
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.csprojResolveAssemblyReference.cache
-Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.Form1.resources
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.Properties.Resources.resources
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.csproj.GenerateResource.Cache
 Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.exe
@@ -37,3 +36,4 @@ C:\Users\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\
 C:\Users\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.Form1.resources
 C:\Users\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.Properties.Resources.resources
 C:\Users\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.csproj.GenerateResource.Cache
+Z:\Justin\Documents\Visual Studio 2015\Projects\FlippaSearch\FlippaSearch\FlippaSearch\obj\Debug\FlippaSearch.Form1.resources

@@ -21,34 +21,29 @@ namespace FlippaSearch
         static IWebDriver driverGC;
         public Form1()
         {
-            driverGC = new ChromeDriver(@"C:\Users\Justin\Documents\Visual Studio 2015\chromedriver_win32");
+            driverGC = new ChromeDriver(@"Z:\Justin\Documents\Visual Studio 2015\chromedriver_win32");
             driverGC.Navigate().GoToUrl("https://flippa.com/websites/starter-sites?sitetype=blog&uniques_per_month_min=1000");
             InitializeComponent();
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             List<IWebElement> starterSites = new List<IWebElement>();
-            List<String> myStarterSites = new List<string>();
+            List<String> myStarterSites = new List<string>();;
             var numPages = (driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[1]/div[1]/h2/span")).Text);
             double numberPages = int.Parse(Regex.Match(numPages, @"\d+", RegexOptions.RightToLeft).Value);
-            WebDriverWait wait = new WebDriverWait(driverGC, TimeSpan.FromSeconds(10));
-            wait.Until(d => driverGC.FindElements(By.CssSelector(".ListingResults___listingResult")));
             numberPages = Math.Ceiling(numberPages / 50);
             int j;
             for (int i = 1; i <= numberPages; i++)
             {
-                //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
-                driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                 var mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                 int size = 1;
-                for (j = 0; j < 3; ++j)
+                for (j = 0; j < size; ++j)
                 {
-                    //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                     mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                     size = mySites.Count();
-                    //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(60);
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                     String siteLink = " ";
                     siteLink = mySites[j].FindElement(By.CssSelector(".ListingResults___listingResultLink")).GetAttribute("href");
@@ -89,10 +84,8 @@ namespace FlippaSearch
                                         {
                                             foreach (string s in myStarterSites)
                                             {
-                                                writer.WriteLine(s);// Writes in next line
-                                                                    //writer.WriteLine(" ");
+                                                writer.WriteLine(s);
                                             }
-                                            writer.WriteLine("");
                                         }
                                     }
                                        
@@ -100,7 +93,7 @@ namespace FlippaSearch
                             }
                         }
                     }
-                    catch (OpenQA.Selenium.NoSuchElementException)
+                    catch (NoSuchElementException)
                     {
                         
                     }
@@ -108,15 +101,22 @@ namespace FlippaSearch
                     driverGC.Navigate().Back();
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                     //write shit to file
-                    siteLink = "";
+                    siteLink = null;
                 }
-                j = 0;
-                //mySites = null;
+                mySites = null;
                 try
                 {
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
-                    driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[2]/div[2]/div/a[3]")).Click();
+                    //driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[2]/div[2]/div/a[3]")).Click();
+                    driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[2]/div[2]/div/a[3]")).Click(); // go to next page
+                    WebDriverWait wait = new WebDriverWait(driverGC, TimeSpan.FromSeconds(5));
+                    wait.Until(ExpectedConditions.TextToBePresentInElementLocated(By.CssSelector(".Pagination___pageLink  Pagination___prevLink"), (i + 1).ToString()));
                     //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+                    
+                }
+                catch (OpenQA.Selenium.WebDriverTimeoutException)
+                {
+                    continue;
                 }
                 catch (ElementNotVisibleException)
                 {
