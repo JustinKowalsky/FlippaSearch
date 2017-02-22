@@ -10,9 +10,9 @@ using System.Windows.Forms;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
 using System.Text.RegularExpressions;
 using System.IO;
+using OpenQA.Selenium.Support.UI;
 
 namespace FlippaSearch
 {
@@ -30,58 +30,94 @@ namespace FlippaSearch
         {
             List<IWebElement> starterSites = new List<IWebElement>();
             List<String> myStarterSites = new List<string>();
+            IWait<IWebDriver> wait = new WebDriverWait(driverGC, TimeSpan.FromSeconds(30.00));
             var numPages = (driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[1]/div[1]/h2/span")).Text);
-            var mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
-            int size = 1;
-            for (int i = 0; i < 2; i++)
+            double numberPages = int.Parse(Regex.Match(numPages, @"\d+", RegexOptions.RightToLeft).Value);
+            numberPages = Math.Ceiling(numberPages / 50);
+            int j;
+            for (int i = 1; i <= numberPages; i++)
             {
-
-                for (int j = 0; j < size; j++)
+                driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+                var mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
+                int size = 1;
+                for (j = 0; j < 3; ++j)
                 {
-                    driverGC.Manage().Timeouts().PageLoad
+                    driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
                     mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                     size = mySites.Count();
-                    var siteLink = " ";
-                    
+                    driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
+                    String siteLink = " ";
+                    siteLink = mySites[j].FindElement(By.CssSelector(".ListingResults___listingResultLink")).GetAttribute("href");
+
+                    driverGC.Navigate().GoToUrl(siteLink);
+                    driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                    //testing tables
+                    int row_tr = 5;
+                    int Column_td = 3;
+                    String CellValue;
+                    String newCellValue;
+                    String cellValueChange;
                     try
                     {
-                        
-                        siteLink = mySites[j].FindElement(By.CssSelector(".ListingResults___listingResultLink")).GetAttribute("href");
-                        //MessageBox.Show(siteLink);
-                        //driverGC.Navigate().GoToUrl(siteLink);
-                        myStarterSites.Add(siteLink);
+                        driverGC.FindElement(By.XPath("/html/body/div[3]/div[1]/div[1]/div[5]/div[1]/div/table[1]/tbody"));
+                        for (int k = 1; k <= row_tr; k++)
+                        {
+                            for (int b = 1; b <= Column_td; b++)
+                            {
+                                CellValue = driverGC.FindElement(By.XPath("/html/body/div[3]/div[1]/div[1]/div[5]/div[1]/div/table[1]/tbody/tr[" + k + "]/td[" + b + "]")).Text.ToString();
+                                if (CellValue == "Organic Search")
+                                {
+                                    String mySiteName = driverGC.FindElement(By.XPath("/html/body/div[3]/div[1]/div[1]/div[1]/div[1]/h1")).Text.ToString();
+                                    newCellValue = driverGC.FindElement(By.XPath("/html/body/div[3]/div[1]/div[1]/div[5]/div[1]/div/table[1]/tbody/tr[" + k + "]/td[3]")).Text.ToString();
+                                    cellValueChange = Regex.Replace(newCellValue, @"[%\s]", string.Empty);
+                                    float organicSearch = float.Parse(cellValueChange);
+                                    if (organicSearch >= 50)
+                                    {
+                                        myStarterSites.Add(mySiteName);
+                                        myStarterSites.Add(CellValue);
+                                        myStarterSites.Add(newCellValue);
+                                        Console.WriteLine(mySiteName);
+                                        Console.WriteLine(CellValue);
+                                        Console.WriteLine(newCellValue);
+                                    }
+                                       
+                                }
+                            }
+                        }
                     }
                     catch (OpenQA.Selenium.NoSuchElementException)
                     {
-                        MessageBox.Show("Could not find anything");
-                        break;
+                        
                     }
-                    //IWebElement organicSearch = (driverGC.FindElement(By.XPath("/html/body/div[3]/div[1]/div[1]/div[5]/div[1]/div/table[1]/tbody/tr[1]/td[1]")));
-
+                    //testing tables
+                    driverGC.Navigate().Back();
+                    //write shit to file
+                    siteLink = "";
+                    driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
                 }
+                j = 0;
+                //mySites = null;
                 try
                 {
                     driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[2]/div[2]/div/a[3]")).Click();
+                    //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
                 }
-                catch (OpenQA.Selenium.ElementNotVisibleException)
+                catch (ElementNotVisibleException)
                 {
                     Console.WriteLine("No more pages");
-                    continue;
                 }
-                
-
             }
             using (StreamWriter writer = new StreamWriter(@"C:\Users\Justin\Desktop\newFile.txt"))
             {
                 foreach (string s in myStarterSites)
                 {
-                    // writer.Write(s); // Writes in same line
-                    writer.WriteLine(s);// Writes in next line
+                    writer.WriteLine(s + "  ");// Writes in next line
+                    writer.WriteLine(" ");
                 }
-
             }
-            MessageBox.Show("End");
+            //MessageBox.Show("End");
             driverGC.Quit();
+            Application.Exit();    
         }
     }
 }
