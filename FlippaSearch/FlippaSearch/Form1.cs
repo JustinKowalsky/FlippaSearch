@@ -22,13 +22,15 @@ namespace FlippaSearch
         public Form1()
         {
             driverGC = new ChromeDriver(@"Z:\Justin\Documents\Visual Studio 2015\chromedriver_win32");
-            driverGC.Navigate().GoToUrl("https://flippa.com/websites/starter-sites?sitetype=blog&uniques_per_month_min=1000");
+            
             InitializeComponent();
             
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            int monthlyUserText = Convert.ToInt32(monthlyUsers.Text);
+            driverGC.Navigate().GoToUrl("https://flippa.com/websites/starter-sites?sitetype=blog&uniques_per_month_min=" + monthlyUserText);
             List<IWebElement> starterSites = new List<IWebElement>();
             List<String> myStarterSites = new List<string>();;
             List<String> mySiteSearch = new List<string>();
@@ -45,8 +47,15 @@ namespace FlippaSearch
                     mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                     size = mySites.Count();
                     String siteLink = " ";
-                    siteLink = mySites[j].FindElement(By.CssSelector(".ListingResults___listingResultLink")).GetAttribute("href");
-                    driverGC.Navigate().GoToUrl(siteLink);
+                    try
+                    {
+                        siteLink = mySites[j].FindElement(By.CssSelector(".ListingResults___listingResultLink")).GetAttribute("href");
+                        driverGC.Navigate().GoToUrl(siteLink);
+                    }
+                    catch(System.ArgumentOutOfRangeException)
+                    {
+                        continue;
+                    }
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                     //testing tables
                     int row_tr = 5;
@@ -111,7 +120,11 @@ namespace FlippaSearch
                     //driverGC.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(30);
                     
                 }
-                catch (OpenQA.Selenium.WebDriverTimeoutException)
+                catch (NoSuchElementException)
+                {
+                    continue;
+                }
+                catch (WebDriverTimeoutException)
                 {
                     continue;
                 }
@@ -119,6 +132,7 @@ namespace FlippaSearch
                 {
                     Console.WriteLine("No more pages");
                 }
+               
             }
             
             //MessageBox.Show("End");
