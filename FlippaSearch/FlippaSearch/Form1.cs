@@ -22,7 +22,15 @@ namespace FlippaSearch
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            backgroundWorker1.RunWorkerAsync();
+            if (backgroundWorker1.IsBusy == true)
+            {
+                MessageBox.Show("Program already running");
+            }
+            if (backgroundWorker1.IsBusy != true)
+            {
+                backgroundWorker1.RunWorkerAsync();
+            }
+            
         }
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
@@ -36,16 +44,22 @@ namespace FlippaSearch
             List<String> mySiteSearch = new List<string>();
             string numPages = (driverGC.FindElement(By.XPath("//*[@id='searchBody']/div[1]/div[1]/h2/span")).Text);
             double numberPages = int.Parse(Regex.Match(numPages, @"\d+", RegexOptions.RightToLeft).Value);
-            double mynumberPages = Math.Ceiling(numberPages / 50);
+            double myNumberPages = Math.Ceiling(numberPages / 50);
             int myNumPages = Convert.ToInt32(numberPages);
-            MessageBox.Show(numberPages.ToString());
+            //MessageBox.Show(myNumberPages.ToString());
             int j;
-            for (int i = 1; i <= numberPages; i++)
+            for (int i = 1; i <= myNumberPages; i++)
             {
                 var mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                 int size = 1;
                 for (j = 0; j < size; ++j)
                 {
+                    if (backgroundWorker1.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        backgroundWorker1.CancelAsync();
+                        break;
+                    }
                     mySites = driverGC.FindElements(By.CssSelector(".ListingResults___listingResult"));
                     size = mySites.Count();
                     String siteLink = " ";
@@ -56,8 +70,13 @@ namespace FlippaSearch
                     }
                     catch (System.ArgumentOutOfRangeException)
                     {
+                        MessageBox.Show("Could not find the link for the site. Is the site entry on the page?");
                         continue;
                     }
+                    int myProgress = (100 / (int)numberPages);
+                    myNewProgress = myNewProgress + myProgress;
+                    Thread.Sleep(300);
+                    backgroundWorker1.ReportProgress(myNewProgress, "Working...");
                     driverGC.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
                     //testing tables
                     int row_tr = 5;
@@ -107,10 +126,7 @@ namespace FlippaSearch
                         driverGC.Navigate().Back();
                         continue;
                     }
-                    int myProgress = (100 / (int)numberPages);
-                    myNewProgress = myNewProgress + myProgress;
-                    Thread.Sleep(300);
-                    backgroundWorker1.ReportProgress(myNewProgress, "Working...");
+                    
                     driverGC.Navigate().Back();
                     siteLink = null;
                 }
@@ -137,24 +153,45 @@ namespace FlippaSearch
                 }
             }
             //MessageBox.Show("End");
-            driverGC.Quit();
-            Application.Exit();
+            backgroundWorker1.ReportProgress(100, "Working...");
+            //Application.Exit();
+            driverGC.Dispose();
+            MessageBox.Show("Program has finished succesfully!");
+         
+            this.Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
-        {          
-            driverGC.Quit();
-            Application.Exit();
-            //backgroundWorker1.CancelAsync();
+        {
+            //if (backgroundWorker1.WorkerSupportsCancellation)
+            //{
+            // backgroundWorker1.CancelAsync();
+            //}
+            MessageBox.Show("User has ended the program. All results may not be displayed.");
+            backgroundWorker1.CancelAsync();
+            //Application.Exit();
+            driverGC.Dispose();
+            this.Close();           
         }
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
-            {              
+            {
                 MessageBox.Show("You've cancelled the backgroundworker!");
+                driverGC.Dispose();
+                this.Close();
+            }
+            else if (e.Error != null)
+            {
+                MessageBox.Show("Error:" + e.Error.Message);
+            }
+            else
+            {
+                MessageBox.Show("Done!");
+                driverGC.Dispose();
+                this.Close();
             }
         }
-
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar1.Value = e.ProgressPercentage;
